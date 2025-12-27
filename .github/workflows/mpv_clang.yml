@@ -185,7 +185,35 @@ jobs:
         with:
           path: release_${{ matrix.bit }}
           key: ${{ secrets.CACHE_VERSION }}-release_${{ matrix.bit }}-${{ github.run_id }}
+      
+      - name: Collecting cache
+        if: always()
+        run: |
+          7z a -m0=lzma2 -mx=9 -ms=on clang_root.7z clang_root
+          7z a -m0=lzma2 -mx=9 -ms=on build.7z build_${{ matrix.bit }}
+          7z a -m0=lzma2 -mx=9 -ms=on src_packages.7z src_packages
 
+      - name: Uploading clang_root
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: clang_root
+          path: clang_root.7z
+          
+      - name: Uploading build
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: build
+          path: build.7z
+
+      - name: Uploading src_packages
+        uses: actions/upload-artifact@master
+        if: always()
+        with:
+          name: src_packages
+          path: src_packages.7z
+          
   release:
     name: Upload releases
     runs-on: ubuntu-latest
